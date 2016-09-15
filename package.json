@@ -1,0 +1,13 @@
+{
+  "name": "string-replace-middleware",
+  "version": "0.0.1",
+  "description": "Express middleware to replace strings in response stream on the fly",
+  "author": "Marc Loehe <marc@marcloehe.de>",
+  "license": "MIT",
+  "repository": "bfncs/string-replace-middleware",
+  "dependencies": {
+    "escape-string-regexp": "^1.0.5",
+    "hijackresponse": "^2.0.0"
+  },
+  "main": "lib/stringReplaceMiddleware.js"
+}
