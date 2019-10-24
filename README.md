@@ -8,7 +8,7 @@ Install in your Express project using:
 
 ```
 npm install --save string-replace-middleware
-````
+```
 
 ## Usage
 
@@ -43,3 +43,22 @@ app.use(serveStatic('public'));
 
 app.listen(3000);
 ```
+
+## Configuration
+
+The Content-Type header of responses is checked against a regex before modification. The regex is configurable by passing in
+an options object like this:
+
+```javascript
+const options = {
+  contentTypeFilterRegexp: /^text\/|^application\/json$|^application\/xml$/,
+}
+
+app.use(stringReplace({
+    'foo': 'bar',
+}, options));
+```
+
+The default regex is `/^text\/|^application\/json$|^application\/xml$/`, which will match `text/*`, `application/json`, and `application/xml`. Any response with a Content-Type header that doesn't match the regex is ignored and passed-through without modification. 
+
+Also any response without a Content-Type header is ignored and passed-through without any modification.
