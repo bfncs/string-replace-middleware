@@ -16,7 +16,7 @@ After installing, you can add it as a middleware to your project and hand over a
 
 ```javascript
 const express = require('express');
-const stringReplace = require('string-replace-middlewareCreator');
+const stringReplace = require('string-replace-middleware');
 
 const app = express();
 
