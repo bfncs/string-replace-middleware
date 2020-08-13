@@ -49,6 +49,13 @@ describe('replacement', () => {
       'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor f ut labore et dolore magna aliquyam erat, sed diam voluptua.'
     );
   });
+  it('should replace with relatively long search', () => {
+    return testReplacement(
+      { foobar: 'raboof' },
+      'foobar!',
+      'raboof!'
+    );
+  });
 });
 
 describe('content-type allow list', () => {
