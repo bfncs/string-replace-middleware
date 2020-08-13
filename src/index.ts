@@ -12,9 +12,9 @@ export default (
   replacements: Record<string, string>,
   options: Partial<Options> = {}
 ) => {
-  const opts = {...defaultOptions, ...options};
+  const opts = { ...defaultOptions, ...options };
   return (_req: Request, res: Response, next: NextFunction) => {
-    hijackResponse(res, function (err, res) {
+    hijackResponse(res, function(err, res) {
       const contentType = res.get('content-type');
       if (opts.contentTypeFilterRegexp.test(contentType)) {
         if (err) {
