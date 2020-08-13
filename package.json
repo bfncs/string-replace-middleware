@@ -39,5 +39,9 @@
     "semi": true,
     "singleQuote": true,
     "trailingComma": "es5"
+  },
+  "dependencies": {
+    "escape-string-regexp": "^4.0.0",
+    "hijackresponse": "^4.0.0"
   }
 }

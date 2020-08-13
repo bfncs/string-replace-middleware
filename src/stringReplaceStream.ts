@@ -1,6 +1,5 @@
 import { Transform, TransformCallback } from 'stream';
-
-const escapeStringRegexp = require('escape-string-regexp');
+import escapeStringRegexp from 'escape-string-regexp';
 
 type Replacer = {
   matcher: RegExp;
