@@ -22,9 +22,16 @@
   "engines": {
     "node": ">=10"
   },
+  "dependencies": {
+    "escape-string-regexp": "^4.0.0",
+    "hijackresponse": "^4.0.0"
+  },
   "devDependencies": {
     "@types/express": "^4.17.7",
+    "@types/supertest": "^2.0.10",
+    "express": "^4.17.1",
     "husky": "^4.2.5",
+    "supertest": "^4.0.2",
     "tsdx": "^0.13.2",
     "tslib": "^2.0.1",
     "typescript": "^3.9.7"
@@ -39,9 +46,5 @@
     "semi": true,
     "singleQuote": true,
     "trailingComma": "es5"
-  },
-  "dependencies": {
-    "escape-string-regexp": "^4.0.0",
-    "hijackresponse": "^4.0.0"
   }
 }

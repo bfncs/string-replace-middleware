@@ -1,82 +1,108 @@
 import { Transform, TransformCallback } from 'stream';
 import escapeStringRegexp from 'escape-string-regexp';
 
+type Options = {
+  encoding: BufferEncoding;
+  ignoreCase: boolean;
+};
 type Replacer = {
   matcher: RegExp;
   replace: string;
 };
 
+const defaultOptions: Options = {
+  encoding: 'utf8',
+  ignoreCase: true,
+};
+
+function buildReplacers(
+  replacements: Record<string, string>,
+  opts: Options
+): Replacer[] {
+  return Object.keys(replacements)
+    .sort((a, b) => b.length - a.length)
+    .map(search => ({
+      matcher: new RegExp(
+        escapeStringRegexp(search),
+        opts.ignoreCase ? 'gmi' : 'gm'
+      ),
+      replace: replacements[search],
+    }));
+}
+
+function getMaxSearchLength(replacements: Record<string, string>): number {
+  return Object.keys(replacements).reduce(
+    (acc, search) => Math.max(acc, search.length),
+    0
+  );
+}
+
 export default function StringReplaceStream(
   replacements: Record<string, string>,
-  options?: any
+  options: Partial<Options> = {}
 ) {
-  const replacers: Replacer[] = [];
-  const replace = (
+  const opts: Options = { ...defaultOptions, ...options };
+  const replacers = buildReplacers(replacements, opts);
+  const maxSearchLength = getMaxSearchLength(replacements);
+  let tail = '';
+
+  const replaceSlidingWindow = (
     haystack: string,
     replacers: Replacer[],
     replaceBefore: number
   ) => {
-    const getBody = (payload: string) => payload.slice(0, replaceBefore);
-    const tail = haystack.slice(replaceBefore);
+    /**
+     * foo => foo123
+     * foo ba | r ba
+     * foo123 ba | r baz
+     * foo123 | bar baz
+     *
+     * foo => f
+     * foo bar baz => f bar baz
+     */
+    let body = haystack;
     replacers.forEach(replacer => {
-      if (!replacer.matcher.test(haystack)) {
-        return;
-      }
-      haystack =
-        getBody(haystack).replace(replacer.matcher, replacer.replace) + tail;
+      body =
+        body
+          .slice(0, replaceBefore)
+          .replace(replacer.matcher, replacer.replace) +
+        body.slice(replaceBefore);
     });
-    return [getBody(haystack), tail];
+
+    return [body.slice(0, replaceBefore), body.slice(replaceBefore)];
   };
-  let tail = '';
-  let maxSearchLength = 0;
 
-  options = Object.assign(
-    {
-      encoding: 'utf8',
-      ignoreCase: true,
-    },
-    options
-  );
+  const transform = function(
+    buf: Buffer,
+    _enc: BufferEncoding,
+    cb: TransformCallback
+  ) {
+    const replaceBefore = maxSearchLength * 2;
+    const haystack = tail + buf.toString(opts.encoding);
+    let body = '';
 
-  Object.keys(replacements)
-    .sort((a, b) => b.length - a.length)
-    .forEach(search => {
-      maxSearchLength = Math.max(maxSearchLength, search.length);
-      replacers.push({
-        matcher: new RegExp(
-          escapeStringRegexp(search),
-          options.ignoreCase === false ? 'gm' : 'gmi'
-        ),
-        replace: replacements[search],
-      });
-    });
+    if (haystack.length < maxSearchLength * 3 - 2) {
+      tail = haystack;
+      cb(null, '');
+      return;
+    }
 
-  return new Transform({
-    transform: function(
-      buf: Buffer,
-      _enc: BufferEncoding,
-      cb: TransformCallback
-    ) {
-      const replaceBefore = maxSearchLength * 2;
-      let haystack = tail + buf.toString(options.encoding);
-      let body = '';
+    [body, tail] = replaceSlidingWindow(haystack, replacers, replaceBefore);
 
-      if (haystack.length < maxSearchLength * 3 - 2) {
-        tail = haystack;
-        cb(null, '');
-        return;
-      }
-
-      [body, tail] = replace(haystack, replacers, replaceBefore);
-
-      cb(null, body);
-    },
-    flush: function(cb) {
-      if (tail) {
-        const [body] = replace(tail, replacers, tail.length);
-        this.push(body);
-      }
+    cb(null, body);
+  };
+  const flush = function(cb: TransformCallback) {
+    if (!tail) {
       cb();
-    },
-  });
+      return;
+    }
+
+    const body = replacers.reduce(
+      (acc, replacer) => acc.replace(replacer.matcher, replacer.replace),
+      tail
+    );
+    cb(null, body);
+  };
+
+  return new Transform({ transform, flush });
 }
