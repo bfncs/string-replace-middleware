@@ -50,11 +50,7 @@ describe('replacement', () => {
     );
   });
   it('should replace with relatively long search', () => {
-    return testReplacement(
-      { foobar: 'raboof' },
-      'foobar!',
-      'raboof!'
-    );
+    return testReplacement({ foobar: 'raboof' }, 'foobar!', 'raboof!');
   });
 });
 
