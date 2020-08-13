@@ -8,7 +8,7 @@ const defaultOptions: Options = {
   contentTypeFilterRegexp: /^text\/|^application\/json$|^application\/xml$/,
 };
 
-export default (
+export const stringReplace = (
   replacements: Record<string, string>,
   options: Partial<Options> = {}
 ) => {
@@ -30,3 +30,6 @@ export default (
     next();
   };
 };
+
+module.exports = stringReplace;
+module.exports.stringReplace = stringReplace;

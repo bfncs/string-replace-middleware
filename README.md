@@ -16,7 +16,7 @@ After installing, you can add it as a middleware to your project and hand over a
 
 ```javascript
 const express = require('express');
-const stringReplace = require('string-replace-middleware');
+const { stringReplace } = require('string-replace-middleware');
 
 const app = express();
 
@@ -32,7 +32,7 @@ Use it to serve static files with replacements like in this example:
 ```javascript
 const express = require('express');
 const serveStatic = require('serve-static');
-const stringReplace = require('string-replace-middlewareCreator');
+const { stringReplace } = require('string-replace-middleware');
 
 const app = express();
 
