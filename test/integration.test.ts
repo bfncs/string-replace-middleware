@@ -1,6 +1,6 @@
 import request, { Test } from 'supertest';
 import express, { Request, Response } from 'express';
-import stringReplace, { Options } from '../src';
+import { stringReplace, Options } from '../src';
 
 function testReplacement(
   replacements: Record<string, string>,
