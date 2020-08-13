@@ -1,6 +1,6 @@
 {
   "name": "string-replace-middleware",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Express middleware to replace strings in response stream on the fly",
   "author": "Marc Loehe <marc@marcloehe.de>",
   "license": "MIT",
