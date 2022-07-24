@@ -15,7 +15,7 @@ export const stringReplace = (
   const opts = { ...defaultOptions, ...options };
   return (_req: Request, res: Response, next: NextFunction) => {
     hijackResponse(res, function(err, res) {
-      const contentType = res.get('content-type');
+      const contentType = res.get('content-type') || '';
       if (opts.contentTypeFilterRegexp.test(contentType)) {
         if (err) {
           res.unhijack(); // Make the original res object work again
