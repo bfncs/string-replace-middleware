@@ -51,6 +51,7 @@ You might also replace dynamically with access to all the content of [Request](h
 stringReplace({
     '$host' => (req, res) => 'your host ' + req.hostname
 });
+```
 
 ## Configuration
 
