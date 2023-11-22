@@ -1,6 +1,6 @@
 {
   "name": "string-replace-middleware",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Express middleware to replace strings in response stream on the fly",
   "license": "MIT",
   "repository": "bfncs/string-replace-middleware",
