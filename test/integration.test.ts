@@ -52,6 +52,16 @@ describe('replacement', () => {
   it('should replace with relatively long search', () => {
     return testReplacement({ foobar: 'raboof' }, 'foobar!', 'raboof!');
   });
+  it('should replace longer strings first, then shorter ones', () => {
+    return testReplacement({ baz: 'a', foobar: 'baz' }, 'foobar!', 'a!');
+  });
+  it('should not touch if nothing matches', () => {
+    return testReplacement(
+      { foo: 'f', bar: 'b' },
+      'Hello world!',
+      'Hello world!'
+    );
+  });
 });
 
 describe('content-type allow list', () => {
