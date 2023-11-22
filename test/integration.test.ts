@@ -1,9 +1,9 @@
 import request, { Test } from 'supertest';
 import express, { Request, Response } from 'express';
-import { stringReplace, Options } from '../src';
+import { stringReplace, Options, ReplaceFunction } from '../src';
 
 function testReplacement(
-  replacements: Record<string, string>,
+  replacements: Record<string, string | ReplaceFunction>,
   response: string,
   expectedResponse: string,
   stringReplaceOptions: Partial<Options> = {},
@@ -51,6 +51,30 @@ describe('replacement', () => {
   });
   it('should replace with relatively long search', () => {
     return testReplacement({ foobar: 'raboof' }, 'foobar!', 'raboof!');
+  });
+  it('should replace longer strings first, then shorter ones', () => {
+    return testReplacement({ baz: 'a', foobar: 'baz' }, 'foobar!', 'a!');
+  });
+  it('should not touch if nothing matches', () => {
+    return testReplacement(
+      { foo: 'f', bar: 'b' },
+      'Hello world!',
+      'Hello world!'
+    );
+  });
+  it('should replace using a replace function', () => {
+    return testReplacement(
+      { foobar: (req, _res) => req.path },
+      'foobar!',
+      '/!'
+    );
+  });
+  it('should replace with both strings and functions', () => {
+    return testReplacement(
+      { foo: (req, _res) => req.path, bar: 'baz' },
+      'foobar!',
+      '/baz!'
+    );
   });
 });
 
