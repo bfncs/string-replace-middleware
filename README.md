@@ -43,6 +43,14 @@ app.use(serveStatic('public'));
 
 app.listen(3000);
 ```
+### Dynamic replacements
+
+You might also replace dynamically with access to all the content of [Request](https://expressjs.com/de/api.html#req) and [Response](https://expressjs.com/de/api.html#res):
+
+```
+stringReplace({
+    '$host' => (req, res) => 'your host ' + req.hostname
+});
 
 ## Configuration
 
