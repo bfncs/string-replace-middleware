@@ -1,9 +1,10 @@
 import { Transform, TransformCallback } from 'stream';
 import escapeStringRegexp from 'escape-string-regexp';
 
+/** The replacer string or function passed to string.replace(text: string, replacer: MatchReplacement) */
 export type MatchReplacement =
   | string
-  | ((substring: string, ...args: any[]) => string);
+  | ((matchedSubstring: string, ...capturedGroups: string[]) => string);
 
 type Options = {
   encoding: BufferEncoding;
