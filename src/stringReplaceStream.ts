@@ -1,13 +1,17 @@
 import { Transform, TransformCallback } from 'stream';
 import escapeStringRegexp from 'escape-string-regexp';
 
+export type MatchReplacement =
+  | string
+  | ((substring: string, ...args: any[]) => string);
+
 type Options = {
   encoding: BufferEncoding;
   ignoreCase: boolean;
 };
 type Replacer = {
   matcher: RegExp;
-  replace: string;
+  replace: MatchReplacement;
 };
 
 const defaultOptions: Options = {
@@ -16,7 +20,7 @@ const defaultOptions: Options = {
 };
 
 function buildReplacers(
-  replacements: Record<string, string>,
+  replacements: Record<string, MatchReplacement>,
   opts: Options
 ): Replacer[] {
   return Object.keys(replacements)
@@ -30,7 +34,9 @@ function buildReplacers(
     }));
 }
 
-function getMaxSearchLength(replacements: Record<string, string>): number {
+function getMaxSearchLength(
+  replacements: Record<string, MatchReplacement>
+): number {
   return Object.keys(replacements).reduce(
     (acc, search) => Math.max(acc, search.length),
     0
@@ -38,7 +44,7 @@ function getMaxSearchLength(replacements: Record<string, string>): number {
 }
 
 export default function StringReplaceStream(
-  replacements: Record<string, string>,
+  replacements: Record<string, MatchReplacement>,
   options: Partial<Options> = {}
 ) {
   const opts: Options = { ...defaultOptions, ...options };
@@ -65,7 +71,7 @@ export default function StringReplaceStream(
       body =
         body
           .slice(0, replaceBefore)
-          .replace(replacer.matcher, replacer.replace) +
+          .replace(replacer.matcher, replacer.replace as string) +
         body.slice(replaceBefore);
     });
 
@@ -98,7 +104,8 @@ export default function StringReplaceStream(
     }
 
     const body = replacers.reduce(
-      (acc, replacer) => acc.replace(replacer.matcher, replacer.replace),
+      (acc, replacer) =>
+        acc.replace(replacer.matcher, replacer.replace as string),
       tail
     );
     cb(null, body);

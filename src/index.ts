@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import hijackResponse from 'hijackresponse';
-import stringReplaceStream from './stringReplaceStream';
+import stringReplaceStream, { MatchReplacement } from './stringReplaceStream';
 
 export type Options = Record<'contentTypeFilterRegexp', RegExp>;
 
-export type ReplaceFunction = (req: Request, res: Response) => string;
+export type ReplaceFunction = (req: Request, res: Response) => MatchReplacement;
 
 const defaultOptions: Options = {
   contentTypeFilterRegexp: /^text\/|^application\/json$|^application\/xml$/,
@@ -39,7 +39,7 @@ export const stringReplace = (
         }
         res.removeHeader('content-length');
 
-        let scopedReplacements: Record<string, string>;
+        let scopedReplacements: Record<string, MatchReplacement>;
         if (hasFunctionReplacements) {
           // If we have dynamic replacements, calculate for this request
           scopedReplacements = { ...stringReplacements };
