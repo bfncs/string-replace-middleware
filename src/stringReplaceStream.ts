@@ -1,36 +1,45 @@
 import { Transform, TransformCallback } from 'stream';
 import escapeStringRegexp from 'escape-string-regexp';
 
+/** The replacer string or function passed to string.replace(text: string, replacer: *MatchReplacement*) */
+export type MatchReplacement =
+  | string
+  | ((matchedSubstring: string, ...capturedGroups: string[]) => string);
+
+type Replacer = {
+  matcher: RegExp;
+  replace: MatchReplacement;
+};
+
 type Options = {
   encoding: BufferEncoding;
   ignoreCase: boolean;
+  useRegExp: boolean;
 };
-type Replacer = {
-  matcher: RegExp;
-  replace: string;
-};
-
 const defaultOptions: Options = {
   encoding: 'utf8',
   ignoreCase: true,
+  useRegExp: false,
 };
 
 function buildReplacers(
-  replacements: Record<string, string>,
+  replacements: Record<string, MatchReplacement>,
   opts: Options
 ): Replacer[] {
   return Object.keys(replacements)
     .sort((a, b) => b.length - a.length)
     .map(search => ({
       matcher: new RegExp(
-        escapeStringRegexp(search),
+        opts.useRegExp ? search : escapeStringRegexp(search),
         opts.ignoreCase ? 'gmi' : 'gm'
       ),
       replace: replacements[search],
     }));
 }
 
-function getMaxSearchLength(replacements: Record<string, string>): number {
+function getMaxSearchLength(
+  replacements: Record<string, MatchReplacement>
+): number {
   return Object.keys(replacements).reduce(
     (acc, search) => Math.max(acc, search.length),
     0
@@ -38,7 +47,7 @@ function getMaxSearchLength(replacements: Record<string, string>): number {
 }
 
 export default function StringReplaceStream(
-  replacements: Record<string, string>,
+  replacements: Record<string, MatchReplacement>,
   options: Partial<Options> = {}
 ) {
   const opts: Options = { ...defaultOptions, ...options };
@@ -65,7 +74,7 @@ export default function StringReplaceStream(
       body =
         body
           .slice(0, replaceBefore)
-          .replace(replacer.matcher, replacer.replace) +
+          .replace(replacer.matcher, replacer.replace as string) +
         body.slice(replaceBefore);
     });
 
@@ -98,7 +107,8 @@ export default function StringReplaceStream(
     }
 
     const body = replacers.reduce(
-      (acc, replacer) => acc.replace(replacer.matcher, replacer.replace),
+      (acc, replacer) =>
+        acc.replace(replacer.matcher, replacer.replace as string),
       tail
     );
     cb(null, body);
