@@ -2,13 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import hijackResponse from 'hijackresponse';
 import stringReplaceStream, { MatchReplacement } from './stringReplaceStream';
 
-export type Options = Record<'contentTypeFilterRegexp', RegExp>;
-
 export type ReplaceFunction = (req: Request, res: Response) => MatchReplacement;
 
-const defaultOptions: Options = {
+const defaultOptions = {
   contentTypeFilterRegexp: /^text\/|^application\/json$|^application\/xml$/,
+  useRegExp: false,
 };
+type Options = typeof defaultOptions;
 
 export const stringReplace = (
   replacements: Record<string, string | ReplaceFunction>,
@@ -51,7 +51,13 @@ export const stringReplace = (
           scopedReplacements = stringReplacements;
         }
 
-        res.pipe(stringReplaceStream(scopedReplacements)).pipe(res);
+        res
+          .pipe(
+            stringReplaceStream(scopedReplacements, {
+              useRegExp: options.useRegExp,
+            })
+          )
+          .pipe(res);
       } else {
         return res.unhijack();
       }

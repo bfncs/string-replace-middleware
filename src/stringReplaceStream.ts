@@ -6,18 +6,20 @@ export type MatchReplacement =
   | string
   | ((matchedSubstring: string, ...capturedGroups: string[]) => string);
 
-type Options = {
-  encoding: BufferEncoding;
-  ignoreCase: boolean;
-};
 type Replacer = {
   matcher: RegExp;
   replace: MatchReplacement;
 };
 
+type Options = {
+  encoding: BufferEncoding;
+  ignoreCase: boolean;
+  useRegExp: boolean;
+};
 const defaultOptions: Options = {
   encoding: 'utf8',
   ignoreCase: true,
+  useRegExp: false,
 };
 
 function buildReplacers(
@@ -28,7 +30,7 @@ function buildReplacers(
     .sort((a, b) => b.length - a.length)
     .map(search => ({
       matcher: new RegExp(
-        escapeStringRegexp(search),
+        opts.useRegExp ? search : escapeStringRegexp(search),
         opts.ignoreCase ? 'gmi' : 'gm'
       ),
       replace: replacements[search],
